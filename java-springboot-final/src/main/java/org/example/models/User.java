@@ -1,5 +1,8 @@
 package org.example.models;
 
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Model class for users.
  */
@@ -20,7 +23,11 @@ public class User {
      * @param username The username of the user.
      * @param password The password of the user.
      */
-    public User(String username, String password) {
+    @JsonCreator
+    public User(
+            @JsonProperty("username") String username,
+            @JsonProperty("password") String password
+    ) {
         this.username = username;
         this.password = password;
     }

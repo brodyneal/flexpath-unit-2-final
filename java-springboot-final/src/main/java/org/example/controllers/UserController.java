@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -42,7 +42,7 @@ public class UserController {
      * @return The user with the given username.
      */
     @GetMapping(path = "/{username}")
-    public User get(@PathVariable String username) {
+    public User get(@PathVariable("username") String username) {
         return userDao.getUserByUsername(username);
     }
 
@@ -55,10 +55,14 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     @PreAuthorize("permitAll()")
-    public User create(@RequestBody User user) {
+    public User create(@RequestBody Map<String, String> userData) {
+        User user = new User(
+                userData.get("username"),
+                userData.get("password")
+        );
+
         return userDao.createUser(user);
     }
-
     /**
      * Updates a specific user's password.
      *
@@ -67,7 +71,7 @@ public class UserController {
      * @return The updated user.
      */
     @PutMapping(path = "/{username}/password")
-    public User updatePassword(@RequestBody String password, @PathVariable String username) {
+    public User updatePassword(@RequestBody String password, @PathVariable("username") String username) {
         User user = userDao.getUserByUsername(username);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
@@ -82,7 +86,7 @@ public class UserController {
      * @param username The username of the user to delete.
      */
     @DeleteMapping(path = "/{username}")
-    public int delete(@PathVariable String username) {
+    public int delete(@PathVariable("username") String username) {
         return userDao.deleteUser(username);
     }
 
@@ -92,7 +96,7 @@ public class UserController {
      * @return A list of all roles for the user.
      */
     @GetMapping(path = "/{username}/roles")
-    public List<String> getRoles(@PathVariable String username) {
+    public List<String> getRoles(@PathVariable("username") String username) {
         return userDao.getRoles(username);
     }
 
@@ -104,7 +108,7 @@ public class UserController {
      * @return A list of all roles for the user.
      */
     @PostMapping(path = "/{username}/roles")
-    public List<String> addRole(@PathVariable String username, @RequestBody String role) {
+    public List<String> addRole(@PathVariable("username") String username, @RequestBody String role) {
         return userDao.addRole(username, role.toUpperCase());
     }
 
@@ -115,7 +119,7 @@ public class UserController {
      * @param role The role to delete.
      */
     @DeleteMapping(path = "/{username}/roles/{role}")
-    public int deleteRole(@PathVariable String username, @PathVariable String role) {
+    public int deleteRole(@PathVariable("username") String username, @PathVariable("role") String role) {
         var affectedRows = userDao.deleteRole(username, role.toUpperCase());
         if (affectedRows == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found");
